@@ -6,7 +6,8 @@ Summary
 
 Using a an IN(...) clause that contains a numeric value (quoted or not)
 that's outside the range of storable values for the column, MySQL will
-perform a full table scan.  On large tables this can be very, very bad.
+perform a full table scan if there are other quoted numeric values in
+the list.  On large tables this can be very, very bad.
 
 Usage
 =====
@@ -30,9 +31,12 @@ To see the bug:
 	1	SIMPLE	test_table	ALL	PRIMARY	NULL	NULL	NULL	10749 Using where
 	id	select_type	table	type	possible_keys	key	key_len	ref	rows Extra
 	1	SIMPLE	test_table	ALL	PRIMARY	NULL	NULL	NULL	10749 Using where
+	id	select_type	table	type	possible_keys	key	key_len	ref	rows Extra
+	1	SIMPLE	test_table	range	PRIMARY	PRIMARY	4	NULL	4 Using where
 
-Note that MySQL wants to scan an estimated 10,749 rows.  And the "ALL"
-in the type column is a bad sign!
+Note that MySQL wants to scan an estimated 10,749 rows in the first two
+example.  And the "ALL" in the type column is a bad sign!  The last
+query gets it right, though the 4 should probably be a 3.
 
 To see what it should look like:
 
